@@ -2,6 +2,10 @@
 #include <string>
 using namespace std;
 
+
+Game::Game(){
+}
+
 Game::Game(int id, string name, int minPlayers, int maxPlayers, int minPlayTime, int maxPlayTime, int yearPublished) {
 	Game::gameId = id;
 	Game::name = name;
@@ -50,6 +54,10 @@ bool Game::returnGame() {
 	else {
 		return false;
 	}
+}
+
+int Game::getYearPublished() {
+	return yearPublished;
 }
 
 void Game::display() {
