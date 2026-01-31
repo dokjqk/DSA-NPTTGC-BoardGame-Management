@@ -19,7 +19,7 @@ public:
 	Game(int id, string name, int minPlayers, int maxPlayers, int minPlayTime, int maxPlayTime, int yearPublished);
 	Game();
 	int getGameId();
-	string getName();
+	string getName() const;
 	int getMinPlayers();
 	int getMaxPlayers();
 	bool canPlay(int playerCount);
@@ -27,7 +27,9 @@ public:
 	bool returnGame();
 	int getYearPublished();
 	void display();
+	bool checkIfBorrowed();
 
 };
+
 
 

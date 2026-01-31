@@ -21,7 +21,7 @@ int Game::getGameId() {
 	return gameId;
 }
 
-string Game::getName() {
+string Game::getName() const {
 	return name;
 }
 
@@ -67,4 +67,8 @@ void Game::display() {
 	cout << "Play Time: " << minPlayTime << " - " << maxPlayTime << " minutes" << endl;
 	cout << "Year Published: " << yearPublished << endl;
 	cout << "Status: " << (isBorrowed ? "Borrowed" : "Available") << endl;
+}
+
+bool Game::checkIfBorrowed() {
+	return isBorrowed;
 }
