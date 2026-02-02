@@ -5,6 +5,7 @@
 #include "MemberList.h"
 #include "Game.h"
 #include "GameList.h"
+#include "BorrowRecordDictionary.h"
 
 int main() {
     std::cout << "testing member class" << std::endl;
@@ -113,7 +114,7 @@ int main() {
     list.listByPlayers(4);
 
     std::cout << "\n-- loadFromCSV(\"games.csv\") --\n";
-    const string csvFile = "games.csv";
+    const std::string csvFile = "games.csv";
 
     GameList csvList(1000);
     csvList.loadFromCSV(csvFile);
@@ -122,6 +123,52 @@ int main() {
 
 
     std::cout << "\nGame and GameList showcase completed.\n";
+
+    std::cout << "\n=== BorrowRecordDictionary Test with Actual Games ===\n";
+
+    // Use csvList (the list loaded from games.csv) to find games by name.
+    BorrowRecordDictionary brDict;
+
+    Game* csv_g1 = csvList.findByName("Abalone");
+    Game* csv_g2 = csvList.findByName("Sequence");
+    Game* csv_g3 = csvList.findByName("The Settlers of Catan");
+
+    if (csv_g1) std::cout << "\nBorrowing Abalone by member 101: "
+        << (brDict.borrowGame(101, *csv_g1, "2026-02-01") ? "Success" : "Failed") << "\n";
+
+    if (csv_g2) std::cout << "Borrowing Sequence by member 102: "
+        << (brDict.borrowGame(102, *csv_g2, "2026-02-01") ? "Success" : "Failed") << "\n";
+
+    if (csv_g3) std::cout << "Borrowing The Settlers of Catan by member 103: "
+        << (brDict.borrowGame(103, *csv_g3, "2026-02-02") ? "Success" : "Failed") << "\n";
+
+    if (csv_g1) std::cout << "Trying to borrow Abalone again by member 104: "
+        << (brDict.borrowGame(104, *csv_g1, "2026-02-03") ? "Success" : "Failed") << "\n";
+
+    if (csv_g1) std::cout << "\nReturning Abalone by member 101: "
+        << (brDict.returnGame(101, *csv_g1, "2026-02-04") ? "Success" : "Failed") << "\n";
+
+    if (csv_g3) std::cout << "Returning The Settlers of Catan by member 103: "
+        << (brDict.returnGame(103, *csv_g3, "2026-02-04") ? "Success" : "Failed") << "\n";
+
+    if (csv_g1) std::cout << "\nBorrowing Abalone again by member 104: "
+        << (brDict.borrowGame(104, *csv_g1, "2026-02-05") ? "Success" : "Failed") << "\n";
+
+    std::cout << "\nDisplaying all borrow/return records:\n";
+    brDict.displayAll();
+
+    if (csv_g1) {
+        std::cout << "\nDisplaying records for Abalone:\n";
+        brDict.displayByGame(*csv_g1);
+    }
+    if (csv_g2) {
+        std::cout << "\nDisplaying records for Sequence:\n";
+        brDict.displayByGame(*csv_g2);
+    }
+    if (csv_g3) {
+        std::cout << "\nDisplaying records for The Settlers of Catan:\n";
+        brDict.displayByGame(*csv_g3);
+    }
 
 
     return 0;
