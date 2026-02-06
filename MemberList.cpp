@@ -1,5 +1,7 @@
 #include "MemberList.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 MemberList::MemberList() {
 	firstNode = nullptr;
@@ -89,4 +91,33 @@ void MemberList::displayAll() {
 		currentNode->item.display();
 		currentNode = currentNode->next;
 	}
+}
+
+void MemberList::loadFromCSV(const std::string& filename) {
+	std::ifstream file(filename);
+
+	if (!file.is_open()) {
+		std::cout << "Failed to open " << filename << std::endl;
+		return;
+	}
+
+	std::string line;
+
+	// Skip header
+	getline(file, line);
+
+	while (getline(file, line)) {
+		std::stringstream ss(line);
+		std::string idStr, name;
+
+		getline(ss, idStr, ',');
+		getline(ss, name);
+
+		int id = std::stoi(idStr);
+
+		Member m(id, name);
+		addMember(m);
+	}
+
+	file.close();
 }

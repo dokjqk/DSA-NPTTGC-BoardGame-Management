@@ -17,4 +17,5 @@ public:
 	void removeMember(int memberId);
 	Member* findById(int memberId);
 	void displayAll();
+	void loadFromCSV(const std::string& filename);
 };
