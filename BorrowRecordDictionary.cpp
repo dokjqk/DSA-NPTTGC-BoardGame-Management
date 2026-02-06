@@ -1,3 +1,5 @@
+
+
 #include "BorrowRecordDictionary.h"
 #include <iostream>
 
@@ -38,7 +40,7 @@ bool BorrowRecordDictionary::borrowGame(int memberId, Game& game, std::string da
         return false;
     }
 
-    BorrowRecord newRecord  = BorrowRecord(nextRecordId++, memberId, game, "Borrow", date);
+    BorrowRecord newRecord = BorrowRecord(nextRecordId++, memberId, game, "Borrow", date);
 
     int index = hash(game.getName());
     RecordNode* newNode = new RecordNode;
@@ -86,3 +88,16 @@ void BorrowRecordDictionary::displayByGame(Game& game) const {
         current = current->next;
     }
 }
+
+void BorrowRecordDictionary::displayByMember(int memberId) const {
+    for (int i = 0; i < tableSize; i++) {
+        RecordNode* current = array[i];
+        while (current != nullptr) {
+            if (current->item.getMemberId() == memberId) {
+                current->item.display();
+            }
+            current = current->next;
+        }
+    }
+}
+
