@@ -60,6 +60,14 @@ int Game::getYearPublished() {
 	return yearPublished;
 }
 
+int Game::getMinPlayTime() {
+	return minPlayTime;
+}
+
+int Game::getMaxPlayTime(){
+	return maxPlayTime; 
+}
+
 void Game::display() {
 	cout << "Game ID: " << gameId << endl;
 	cout << "Name: " << name << endl;

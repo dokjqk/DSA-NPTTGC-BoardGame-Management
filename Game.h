@@ -26,6 +26,8 @@ public:
 	bool borrow();
 	bool returnGame();
 	int getYearPublished();
+	int getMinPlayTime();
+	int getMaxPlayTime();
 	void display();
 	bool checkIfBorrowed();
 

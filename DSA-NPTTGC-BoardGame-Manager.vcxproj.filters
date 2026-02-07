@@ -58,6 +58,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="games.csv" />
+    <None Include="members.csv" />
+    <None Include="..\..\..\Users\acer\Downloads\games.csv" />
   </ItemGroup>
 </Project>

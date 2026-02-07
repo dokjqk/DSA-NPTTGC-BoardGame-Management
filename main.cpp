@@ -1,4 +1,3 @@
-
 // DSA-NPTTGC-BoardGame-Manager.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 #include <iostream>
@@ -10,12 +9,13 @@
 
 void displayAdminMenu() {
     std::cout << "\nAdministrator Menu:\n";
-    std::cout << "1. Add a board game" << std::endl;
-    std::cout << "2. Remove a board game" << std::endl;
-    std::cout << "3. Add a new member" << std::endl;
-    std::cout << "4. Display a summary of games borrowed/returned" << std::endl;
-    std::cout << "5.Display the details of a particular game" << std::endl;
+    std::cout << "1. Display All Games" << std::endl;
+    std::cout << "2. Add a board game" << std::endl;
+    std::cout << "3. Remove a board game" << std::endl;
+    std::cout << "4. Add a new member" << std::endl;
+    std::cout << "5. Display a summary of games borrowed/returned" << std::endl;
     std::cout << "6. Display a list of games that can be played by a given number players" << std::endl;
+	std::cout << "0. Return to main menu" << std::endl;
 }
 
 void displayMemberMenu() {
@@ -27,9 +27,274 @@ void displayMemberMenu() {
     std::cout << "5. Display a list of games that can be played by a given number of players" << std::endl;
 }
 
+//Display all games with pagination and sorting
+void displayGamesWithPagination(GameList& gameList) {
+    const int gamesPerPage = 20;
+    int currentPage = 0;
+    int totalGames = gameList.getSize();
+    int totalPages = (totalGames + gamesPerPage - 1) / gamesPerPage;
+
+    while (true) {
+        system("cls");
+        std::cout << "\n==== All Games (Page " << (currentPage + 1) << "/" << totalPages << ") ====\n";
+        std::cout << "-------------------------------------------------------\n";
+
+        int startIdx = currentPage * gamesPerPage;
+        int endIdx = std::min(startIdx + gamesPerPage, totalGames);
+
+        for (int i = startIdx; i < endIdx; i++) {
+            Game* game = gameList.getGameAt(i);
+            if (game) {
+                std::cout << "ID: " << game->getGameId() << " | Name: " << game->getName() << "\n";
+                std::cout << "Players: " << game->getMinPlayers() << "-" << game->getMaxPlayers();
+                std::cout << " | Year: " << game->getYearPublished();
+                std::cout << " | Status: " << (game->checkIfBorrowed() ? "Borrowed" : "Available") << "\n";
+                std::cout << "-------------------------------------------------------\n";
+            }
+        }
+
+        std::cout << "\nOptions:\n";
+        if (currentPage > 0) std::cout << "P - Previous Page\n";
+        if (currentPage < totalPages - 1) std::cout << "N - Next Page\n";
+        std::cout << "S - Sort Games\n";
+        std::cout << "D - View Game Details (by ID)\n";
+        std::cout << "F - First Page\n";
+        std::cout << "L - Last Page\n";
+        std::cout << "0 - Back to Admin Menu\n";
+        std::cout << "\nEnter choice: ";
+
+        char choice;
+        std::cin >> choice;
+        choice = toupper(choice);
+
+        switch (choice) {
+        case 'P':
+            if (currentPage > 0) {
+                currentPage--;
+            }
+            else {
+                std::cout << "Already on first page.\n";
+                std::cin.ignore();
+                std::cin.get();
+            }
+            break;
+
+        case 'N':
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+            }
+            else {
+                std::cout << "Already on last page.\n";
+                std::cin.ignore();
+                std::cin.get();
+            }
+            break;
+
+        case 'F':
+            currentPage = 0;
+            break;
+
+        case 'L':
+            currentPage = totalPages - 1;
+            break;
+
+        case 'S': {
+            std::cout << "\nSort by:\n";
+            std::cout << "1. Name\n";
+            std::cout << "2. Year Published\n";
+            std::cout << "3. Game ID\n";
+            std::cout << "4. Borrow Status\n";
+            std::cout << "Enter choice: ";
+
+            int sortChoice;
+            std::cin >> sortChoice;
+
+            switch (sortChoice) {
+            case 1:
+                gameList.sortByName();
+                std::cout << "Sorted by name.\n";
+                break;
+            case 2:
+                gameList.sortByYear();
+                std::cout << "Sorted by year.\n";
+                break;
+            case 3:
+                gameList.sortById();
+                std::cout << "Sorted by ID.\n";
+                break;
+            case 4:
+                gameList.sortByBorrowedStatus();
+                std::cout << "Sorted by borrow status.\n";
+                break;
+            default:
+                std::cout << "Invalid sort option.\n";
+            }
+
+            totalGames = gameList.getSize();
+            totalPages = (totalGames + gamesPerPage - 1) / gamesPerPage;
+            currentPage = 0;
+
+            std::cin.ignore();
+            std::cin.get();
+            break;
+        }
+
+        case 'D': {
+            int gameId;
+            std::cout << "Enter Game ID: ";
+            std::cin >> gameId;
+
+            Game* game = gameList.findById(gameId);
+            if (game) {
+                std::cout << "\n";
+                game->display();
+            }
+            else {
+                std::cout << "Game not found.\n";
+            }
+
+            std::cout << "\nPress Enter to continue...";
+            std::cin.ignore();
+            std::cin.get();
+            break;
+        }
+
+        case '0':
+            return;
+
+        default:
+            std::cout << "Invalid choice.\n";
+            std::cin.ignore();
+            std::cin.get();
+        }
+    }
+}
+
+//Display games by player count with pagination apply same concept as above
+void displayGamesByPlayersWithPagination(GameList& gameList, int players) {
+    const int gamesPerPage = 20;
+    int currentPage = 0;
+
+    
+    int matchingGames = 0;
+    for (int i = 0; i < gameList.getSize(); i++) {
+        Game* game = gameList.getGameAt(i);
+        if (game && game->canPlay(players)) {
+            matchingGames++;
+        }
+    }
+
+    if (matchingGames == 0) {
+        std::cout << "No games found that can be played with " << players << " players.\n";
+        return;
+    }
+
+    int totalPages = (matchingGames + gamesPerPage - 1) / gamesPerPage;
+
+    while (true) {
+        system("cls");
+        std::cout << "\n==== Games for " << players << " Players (Page " << (currentPage + 1) << "/" << totalPages << ") ====\n";
+        std::cout << "Total matching games: " << matchingGames << "\n";
+        std::cout << "-------------------------------------------------------\n";
+
+        int displayedOnPage = 0;
+        int startGame = currentPage * gamesPerPage;
+        int matchedSoFar = 0;
+
+        for (int i = 0; i < gameList.getSize() && displayedOnPage < gamesPerPage; i++) {
+            Game* game = gameList.getGameAt(i);
+            if (game && game->canPlay(players)) {
+                if (matchedSoFar >= startGame) {
+                    std::cout << "ID: " << game->getGameId() << " | Name: " << game->getName() << "\n";
+                    std::cout << "Players: " << game->getMinPlayers() << "-" << game->getMaxPlayers();
+                    std::cout << " | PlayTime: " << game->getMinPlayTime() << "-" << game->getMaxPlayTime() << " min";
+                    std::cout << " | Year: " << game->getYearPublished();
+                    std::cout << " | Status: " << (game->checkIfBorrowed() ? "Borrowed" : "Available") << "\n";
+                    std::cout << "-------------------------------------------------------\n";
+                    displayedOnPage++;
+                }
+                matchedSoFar++;
+            }
+        }
+
+        std::cout << "\nOptions:\n";
+        if (currentPage > 0) std::cout << "P - Previous Page\n";
+        if (currentPage < totalPages - 1) std::cout << "N - Next Page\n";
+        std::cout << "D - View Game Details (by ID)\n";
+        std::cout << "F - First Page\n";
+        std::cout << "L - Last Page\n";
+        std::cout << "0 - Back to Menu\n";
+        std::cout << "\nEnter choice: ";
+
+        char choice;
+        std::cin >> choice;
+        choice = toupper(choice);
+
+        switch (choice) {
+        case 'P':
+            if (currentPage > 0) {
+                currentPage--;
+            }
+            else {
+                std::cout << "Already on first page.\n";
+                std::cin.ignore();
+                std::cin.get();
+            }
+            break;
+
+        case 'N':
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+            }
+            else {
+                std::cout << "Already on last page.\n";
+                std::cin.ignore();
+                std::cin.get();
+            }
+            break;
+
+        case 'F':
+            currentPage = 0;
+            break;
+
+        case 'L':
+            currentPage = totalPages - 1;
+            break;
+
+        case 'D': {
+            int gameId;
+            std::cout << "Enter Game ID: ";
+            std::cin >> gameId;
+
+            Game* game = gameList.findById(gameId);
+            if (game) {
+                std::cout << "\n";
+                game->display();
+            }
+            else {
+                std::cout << "Game not found.\n";
+            }
+
+            std::cout << "\nPress Enter to continue...";
+            std::cin.ignore();
+            std::cin.get();
+            break;
+        }
+
+        case '0':
+            return;
+
+        default:
+            std::cout << "Invalid choice.\n";
+            std::cin.ignore();
+            std::cin.get();
+        }
+    }
+}
+
 
 int main() {
-    GameList gameList(1000);
+    GameList gameList(1000,"games.csv");
     MemberList memberList;
     BorrowRecordDictionary borrowDict;
 
@@ -49,28 +314,146 @@ int main() {
         std::cout << "Enter choice: ";
         std::cin >> roleChoice;
 
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+            std::cout << "Invalid input. Please enter a number." << std::endl;
+            continue;
+        }
+
         if (roleChoice == 3) {
             std::cout << "Exiting program..." << std::endl;
             break;
         }
 
         if (roleChoice == 1) {
-            int adminChoice;
-            displayAdminMenu();
-            std::cout << "Enter choice: ";
-            std::cin >> adminChoice;
+            bool exitAdminMenu = false;
+            while (!exitAdminMenu) {
+                int adminChoice;
+                displayAdminMenu();
+                std::cout << "Enter choice: ";
+                std::cin >> adminChoice;
 
-            switch (adminChoice) {
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-                std::cout << "Admin feature not implemented yet." << std::endl;
-                break;
+                if (std::cin.fail()) {
+                    std::cin.clear();
+                    std::cin.ignore(10000, '\n');
+                    std::cout << "Invalid input. Please enter a number." << std::endl;
+                    continue;
+                }
 
-            default:
-                std::cout << "Invalid choice." << std::endl;
+                switch (adminChoice) {
+                case 1: {   // Display All Games
+                    displayGamesWithPagination(gameList);
+                    break;
+                }
+                case 2: {   // Add game
+                    std::string gameName;
+                    int minPlayers, maxPlayers, minPlayTime, maxPlayTime, yearPublished;
+
+                    std::cin.ignore();
+                    std::cout << "Enter game name: ";
+                    std::getline(std::cin, gameName);
+
+                    std::cout << "Enter minimum players: ";
+                    std::cin >> minPlayers;
+
+                    std::cout << "Enter maximum players: ";
+                    std::cin >> maxPlayers;
+
+                    std::cout << "Enter minimum play time (minutes): ";
+                    std::cin >> minPlayTime;
+
+                    std::cout << "Enter maximum play time (minutes): ";
+                    std::cin >> maxPlayTime;
+
+                    std::cout << "Enter year published: ";
+                    std::cin >> yearPublished;
+
+                    Game newGame(0, gameName, minPlayers, maxPlayers, minPlayTime, maxPlayTime, yearPublished);
+                    gameList.addGame(newGame);
+
+                    std::cout << "Game added successfully!" << std::endl;
+                    std::cout << "\nPress Enter to continue...";
+                    std::cin.ignore();
+                    std::cin.get();
+                    break;
+                }
+
+                case 3: {   // Remove game
+                    int gameId;
+
+                    std::cout << "Enter game ID to remove: ";
+                    std::cin >> gameId;
+
+                    if (gameList.removeGame(gameId)) {
+                        std::cout << "Game removed successfully!" << std::endl;
+                    }
+                    else {
+                        std::cout << "Failed to remove game. Game not found or error occurred." << std::endl;
+                    }
+                    std::cout << "\nPress Enter to continue...";
+                    std::cin.ignore();
+                    std::cin.get();
+                    break;
+                }
+
+                case 4: {   // Add Member
+                    int memberId;
+                    std::string memberName;
+
+                    std::cout << "Enter member ID: ";
+                    std::cin >> memberId;
+
+                    std::cin.ignore();
+                    std::cout << "Enter member name: ";
+                    std::getline(std::cin, memberName);
+
+                    Member newMember(memberId, memberName);
+
+                    if (memberList.addMember(newMember)) {
+                        std::cout << "Member added successfully!" << std::endl;
+                    }
+                    else {
+                        std::cout << "Failed to add member. Member ID already exists." << std::endl;
+                    }
+
+                    std::cout << "\nPress Enter to continue...";
+                    std::cin.get();
+                    break;
+                }
+
+                case 5: {   // Borrowed summary
+                    std::cout << "\n=== Summary of All Games Borrowed/Returned ===" << std::endl;
+                    borrowDict.displayAll();
+                    std::cout << "\nPress Enter to continue...";
+                    std::cin.ignore();
+                    std::cin.get();
+                    break;
+                }
+
+                case 6: {   // Games by player count (Admin)
+                    int players;
+                    std::cout << "Enter number of players: ";
+                    std::cin >> players;
+
+                    displayGamesByPlayersWithPagination(gameList, players);
+                    std::cout << "\nPress Enter to continue...";
+                    std::cin.ignore();
+                    std::cin.get();
+                    break;
+                }
+
+                case 0:
+                    std::cout << "Returning to main menu..." << std::endl;
+                    exitAdminMenu = true;
+                    break;
+
+                default:
+                    std::cout << "Invalid choice. Please enter a number between 0 and 6." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(10000, '\n');
+                    break;
+                }
             }
         }
         else if (roleChoice == 2) {
@@ -78,6 +461,13 @@ int main() {
             displayMemberMenu();
             std::cout << "Enter choice: ";
             std::cin >> memberChoice;
+
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(10000, '\n');
+                std::cout << "Invalid input. Please enter a number." << std::endl;
+                continue;
+            }
 
             switch (memberChoice) {
             case 1: { // Borrow Game
@@ -102,6 +492,8 @@ int main() {
                 else
                     std::cout << "Borrow failed." << std::endl;
 
+                std::cout << "\nPress Enter to continue...";
+                std::cin.get();
                 break;
             }
             case 2: { // Return Game
@@ -125,6 +517,8 @@ int main() {
                 else
                     std::cout << "Return failed." << std::endl;
 
+                std::cout << "\nPress Enter to continue...";
+                std::cin.get();
                 break;
             }
             case 3: { // Display Member Summary
@@ -133,25 +527,34 @@ int main() {
                 std::cin >> memberId;
 
                 borrowDict.displayByMember(memberId);
+                std::cout << "\nPress Enter to continue...";
+                std::cin.ignore();
+                std::cin.get();
                 break;
             }
             case 4: { // Display Game Details
-                int id;
-                std::cout << "Enter gameId: ";
-                std::cin >> id;
-
-                Game* g = gameList.findById(id);
-                if (g)
-                    g->display();
-                else
-                    std::cout << "Game not found." << std::endl;
-
+                displayGamesWithPagination(gameList);
                 break;
             }
             case 5: { // List of games able to be played
+                int players;
+                std::cout << "Enter number of players: ";
+                std::cin >> players;
 
+                displayGamesByPlayersWithPagination(gameList, players);
+                break;
             }
+            default:
+                std::cout << "Invalid choice." << std::endl;
+                std::cin.clear();
+                std::cin.ignore(10000, '\n');
+                break;
             }
         }
+        else {
+            std::cout << "Invalid choice. Please enter 1, 2, or 3." << std::endl;
+        }
     }
+    
+    return 0;
 }

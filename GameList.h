@@ -1,9 +1,17 @@
+//Name: Ansleigh, group 8, s10268445J
+
 #pragma once
 #include "Game.h"
 #include <string>
 using namespace std;
 
 
+enum SortType {
+    year,
+    name,
+    status,
+    ID
+};
 
 class GameList
 {
@@ -11,12 +19,15 @@ private:
     Game* items;
     int size;
     int capacity;
+    string csvFile;
 
-    void quickSort(Game array[], int left, int right);
-    int partition(Game array[], int left, int right);
+    void quickSort(Game array[], int left, int right, SortType type);
+    int partition(Game array[], int left, int right, SortType type);
+
+	int binarySearchById(int id);
 
 public:
-    GameList(int capacity);
+    GameList(int capacity, string filename);
     ~GameList();
 
     void loadFromCSV(string filename);
@@ -29,7 +40,12 @@ public:
 
     void listByPlayers(int players);
     void sortByYear();
+	void sortByName();
+	void sortByBorrowedStatus();
+	void sortById();
     void displayAll();
 
+    int getSize();
+    Game* getGameAt(int index);
 };
 
