@@ -1,4 +1,4 @@
-// DSA-NPTTGC-BoardGame-Manager.cpp : This file contains the 'main' function. Program execution begins and ends there.
+﻿// DSA-NPTTGC-BoardGame-Manager.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 #include <iostream>
 #include "Member.h"
@@ -6,6 +6,8 @@
 #include "Game.h"
 #include "GameList.h"
 #include "BorrowRecordDictionary.h"
+#include "GamePlayRecordList.h"
+#include "GamePlayRecord.h"
 
 void displayAdminMenu() {
     std::cout << "\nAdministrator Menu:\n";
@@ -15,6 +17,7 @@ void displayAdminMenu() {
     std::cout << "4. Add a new member" << std::endl;
     std::cout << "5. Display a summary of games borrowed/returned" << std::endl;
     std::cout << "6. Display a list of games that can be played by a given number players" << std::endl;
+    std::cout << "7. View game play statistics" << std::endl;
 	std::cout << "0. Return to main menu" << std::endl;
 }
 
@@ -27,6 +30,7 @@ void displayMemberMenu() {
     std::cout << "5. Display a list of games that can be played by a given number of players" << std::endl;
     std::cout << "6. Write a review"<< std::endl;
     std::cout << "7. View reviews for a game" << std::endl;
+	std::cout << "8. Display member's play history" << std::endl;
     std::cout << "0. Return to main menu" << std::endl;
 }
 
@@ -295,17 +299,235 @@ void displayGamesByPlayersWithPagination(GameList& gameList, int players) {
     }
 }
 
+//Record new game play
+bool recordGamePlay(GamePlayRecordList& gamePlayList, MemberList& memberList, GameList& gameList) {
+    system("cls");
+    
+    int gameId, numWinners, numLosers;
+    
+    std::cout << "\n==== Record New Game Play ====\n";
+    std::cout << "Enter Game ID (or 0 to cancel): ";
+    std::cin >> gameId;
+    
+    if (gameId == 0) {
+        return false;
+    }
+    
+    Game* game = gameList.findById(gameId);
+    if (game == nullptr) {
+        std::cout << "Game not found!" << std::endl;
+        std::cout << "\nPress Enter to continue...";
+        std::cin.ignore();
+        std::cin.get();
+        return false;
+    }
+    
+    std::cout << "Recording play for: " << game->getName() << std::endl;
+    
+    GamePlayRecord* play = new GamePlayRecord(gameId, game->getName());
+    
+    std::cout << "\nEnter number of winners: ";
+    std::cin >> numWinners;
+    
+    if (numWinners > 0) {
+        std::cout << "Enter winner IDs:" << std::endl;
+        for (int i = 0; i < numWinners; i++) {
+            int winnerId;
+            std::cout << "  Winner " << (i + 1) << ": ";
+            std::cin >> winnerId;
+            
+            Member* winnerMember = memberList.findById(winnerId);
+            if (winnerMember == nullptr) {
+                std::cout << "  Warning: Member ID " << winnerId << " not found in system." << std::endl;
+            } else {
+                std::cout << "  Added: " << winnerMember->getName() << std::endl;
+            }
+            
+            play->addWinner(winnerId);
+        }
+    }
+    
+    std::cout << "\nEnter number of losers: ";
+    std::cin >> numLosers;
+    
+    if (numLosers > 0) {
+        std::cout << "Enter loser IDs:" << std::endl;
+        for (int i = 0; i < numLosers; i++) {
+            int loserId;
+            std::cout << "  Loser " << (i + 1) << ": ";
+            std::cin >> loserId;
+            
+            Member* loserMember = memberList.findById(loserId);
+            if (loserMember == nullptr) {
+                std::cout << "  Warning: Member ID " << loserId << " not found in system." << std::endl;
+            } else {
+                std::cout << "  Added: " << loserMember->getName() << std::endl;
+            }
+            
+            play->addLoser(loserId);
+        }
+    }
+    
+    int totalPlayers = play->getTotalPlayers();
+    if (totalPlayers == 0) {
+        std::cout << "\nError: At least one player must be recorded!" << std::endl;
+        delete play;
+        std::cout << "\nPress Enter to continue...";
+        std::cin.ignore();
+        std::cin.get();
+        return false;
+    }
+    
+    if (!game->canPlay(totalPlayers)) {
+        std::cout << "\nWarning: Total players (" << totalPlayers 
+                  << ") is outside the valid range for this game ("
+                  << game->getMinPlayers() << "-" << game->getMaxPlayers() << " players)." << std::endl;
+        std::cout << "Record anyway? (Y/N): ";
+        char confirm;
+        std::cin >> confirm;
+        if (toupper(confirm) != 'Y') {
+            delete play;
+            std::cout << "Game play recording cancelled." << std::endl;
+            std::cout << "\nPress Enter to continue...";
+            std::cin.ignore();
+            std::cin.get();
+            return false;
+        }
+    }
+    
+    gamePlayList.addGamePlay(play);
+    std::cout << "\nGame play recorded successfully!" << std::endl;
+    
+    std::cout << "\nPress Enter to continue...";
+    std::cin.ignore();
+    std::cin.get();
+    
+    return true;
+}
+
+//Display member play history with pagination too
+void displayMemberPlayHistoryWithPagination(GamePlayRecordList& gamePlayList, MemberList& memberList, GameList& gameList, int memberId) {
+    const int recordsPerPage = 10;
+    int currentPage = 0;
+    
+    int totalRecords = gamePlayList.getPlayCountByMember(memberId);
+    
+    if (totalRecords == 0) {
+        std::cout << "\nYou have no play history recorded yet.\n";
+        std::cout << "Press Enter to record your first game play...";
+        std::cin.ignore();
+        std::cin.get();
+    }
+    
+    int totalPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+    
+    while (true) {
+        system("cls");
+        
+        int wins = gamePlayList.getWinCountByMember(memberId);
+        int losses = gamePlayList.getLossCountByMember(memberId);
+        double winRate = totalRecords > 0 ? (double)wins / totalRecords * 100.0 : 0.0;
+        
+        std::cout << "\n==== Your Play History (Page " << (currentPage + 1) << "/" << totalPages << ") ====\n";
+        std::cout << "Total Games: " << totalRecords << " | Wins: " << wins 
+                  << " | Losses: " << losses << " | Win Rate: " << winRate << "%\n";
+        std::cout << "-------------------------------------------------------\n";
+        
+        int startIdx = currentPage * recordsPerPage;
+        
+        std::cout << "\n";
+        gamePlayList.displayByMemberPaginated(memberId, startIdx, recordsPerPage);
+        
+        std::cout << "\n-------------------------------------------------------\n";
+        std::cout << "Options:\n";
+        if (currentPage > 0) std::cout << "P - Previous Page\n";
+        if (currentPage < totalPages - 1) std::cout << "N - Next Page\n";
+        std::cout << "F - First Page\n";
+        std::cout << "L - Last Page\n";
+        std::cout << "R - Record New Game Play\n";
+        std::cout << "S - View Statistics\n";
+        std::cout << "0 - Back to Menu\n";
+        std::cout << "\nEnter choice: ";
+        
+        char choice;
+        std::cin >> choice;
+        choice = toupper(choice);
+        
+        switch (choice) {
+            case 'P':
+                if (currentPage > 0) {
+                    currentPage--;
+                } else {
+                    std::cout << "Already on first page.\n";
+                    std::cin.ignore();
+                    std::cin.get();
+                }
+                break;
+                
+            case 'N':
+                if (currentPage < totalPages - 1) {
+                    currentPage++;
+                } else {
+                    std::cout << "Already on last page.\n";
+                    std::cin.ignore();
+                    std::cin.get();
+                }
+                break;
+                
+            case 'F':
+                currentPage = 0;
+                break;
+                
+            case 'L':
+                currentPage = totalPages - 1;
+                break;
+                
+            case 'S': {
+                system("cls");
+                std::cout << "\n==== Your Detailed Statistics ====\n";
+                std::cout << "Total games played: " << totalRecords << std::endl;
+                std::cout << "Games won: " << wins << std::endl;
+                std::cout << "Games lost: " << losses << std::endl;
+                std::cout << "Win rate: " << winRate << "%" << std::endl;
+                
+                std::cout << "\nPress Enter to continue...";
+                std::cin.ignore();
+                std::cin.get();
+                break;
+            }
+                
+            case 'R': {
+                std::cin.ignore(10000, '\n');
+                if (recordGamePlay(gamePlayList, memberList, gameList)) {
+                    totalRecords = gamePlayList.getPlayCountByMember(memberId);
+                    totalPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;
+                }
+                break;
+            }
+                
+            case '0':
+                return;
+                
+            default:
+                std::cout << "Invalid choice.\n";
+                std::cin.ignore();
+                std::cin.get();
+        }
+    }
+}
 
 int main() {
     GameList gameList(1000,"games.csv");
     MemberList memberList;
     BorrowRecordDictionary borrowDict;
+	GamePlayRecordList gamePlayList("gameplays.csv");
 
     const std::string csvGame = "games.csv";
     const std::string csvMember = "members.csv";
 
     memberList.loadFromCSV(csvMember);
     gameList.loadFromCSV(csvGame);
+	gamePlayList.loadFromCSV();
 
     int roleChoice = 0;
 
@@ -434,7 +656,7 @@ int main() {
                     break;
                 }
 
-                case 6: {   // Games by player count (Admin)
+                case 6: {   // Games by player count
                     int players;
                     std::cout << "Enter number of players: ";
                     std::cin >> players;
@@ -445,6 +667,109 @@ int main() {
                     std::cin.get();
                     break;
                 }
+
+                case 7: {   // View game play statistics for admin
+                    std::cout << "\n=== Game Play Statistics ===" << std::endl;
+                    std::cout << "1. View all game plays" << std::endl;
+                    std::cout << "2. View plays for a game" << std::endl;
+                    std::cout << "3. View plays for a member" << std::endl;
+                    std::cout << "Enter choice: ";
+
+                    int statsChoice;
+                    std::cin >> statsChoice;
+
+                    if (std::cin.fail()) {
+                        std::cin.clear();
+                        std::cin.ignore(10000, '\n');
+                        std::cout << "Invalid input." << std::endl;
+                        std::cout << "\nPress Enter to continue...";
+                        std::cin.ignore();
+                        std::cin.get();
+                        break;
+                    }
+
+                    switch (statsChoice) {
+                    case 1: {
+                        // View all gameplay records
+                        std::cout << "\n=== All Game Plays (System-Wide) ===" << std::endl;
+                        gamePlayList.displayAll();
+
+                        std::cout << "\nPress Enter to continue...";
+                        std::cin.ignore();
+                        std::cin.get();
+                        break;
+                    }
+
+                    case 2: {
+                        // View records for a specific game
+                        int gId;
+                        std::cout << "Enter Game ID: ";
+                        std::cin >> gId;
+
+                        Game* game = gameList.findById(gId);
+                        if (game) {
+                            std::cout << "\n=== Play History for: " << game->getName() << " ===" << std::endl;
+                            gamePlayList.displayByGame(gId);
+
+                            int playCount = gamePlayList.getPlayCountByGame(gId);
+                            std::cout << "\n--- Statistics ---" << std::endl;
+                            std::cout << "Total plays recorded: " << playCount << std::endl;
+                        }
+                        else {
+                            std::cout << "Game not found!" << std::endl;
+                        }
+
+                        std::cout << "\nPress Enter to continue...";
+                        std::cin.ignore();
+                        std::cin.get();
+                        break;
+                    }
+
+                    case 3: {
+                        // View records for a specific member
+                        int mId;
+                        std::cout << "Enter Member ID: ";
+                        std::cin >> mId;
+
+                        Member* member = memberList.findById(mId);
+                        if (member) {
+                            std::cout << "\n=== Play History for: " << member->getName() << " ===" << std::endl;
+                            gamePlayList.displayByMember(mId);
+
+							// Display member statistics
+                            int total = gamePlayList.getPlayCountByMember(mId);
+                            int wins = gamePlayList.getWinCountByMember(mId);
+                            int losses = gamePlayList.getLossCountByMember(mId);
+
+                            if (total > 0) {
+                                double winRate = (double)wins / total * 100.0;
+                                std::cout << "\n--- Detailed Statistics ---" << std::endl;
+                                std::cout << "Total games played: " << total << std::endl;
+                                std::cout << "Wins: " << wins << std::endl;
+                                std::cout << "Losses: " << losses << std::endl;
+                                std::cout << "Win rate: " << winRate << "%" << std::endl;
+                            }
+                        }
+                        else {
+                            std::cout << "Member not found!" << std::endl;
+                        }
+
+                        std::cout << "\nPress Enter to continue...";
+                        std::cin.ignore();
+                        std::cin.get();
+                        break;
+                    }
+
+                    default:
+                        std::cout << "Invalid choice." << std::endl;
+                        std::cout << "\nPress Enter to continue...";
+                        std::cin.ignore();
+                        std::cin.get();
+                        break;
+                    }
+                    break;
+                }
+
 
                 case 0:
                     std::cout << "Returning to main menu..." << std::endl;
@@ -619,6 +944,11 @@ int main() {
                     std::cin.get();
                     break;
                 }
+
+                case 8: { // Display member's play history
+					displayMemberPlayHistoryWithPagination(gamePlayList, memberList, gameList, memberId);
+                    break;
+				}
                 case 0:
                     std::cout << "Returning to main menu..." << std::endl;
                     exitMemberMenu = true;

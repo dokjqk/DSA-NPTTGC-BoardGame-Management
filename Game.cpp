@@ -2,10 +2,11 @@
 #include <string>
 using namespace std;
 
-
+// Constructor
 Game::Game(){
 }
 
+// Parameterized Constructor
 Game::Game(int id, string name, int minPlayers, int maxPlayers, int minPlayTime, int maxPlayTime, int yearPublished) {
 	Game::gameId = id;
 	Game::name = name;
@@ -17,14 +18,17 @@ Game::Game(int id, string name, int minPlayers, int maxPlayers, int minPlayTime,
 	Game::isBorrowed = false;
 }
 
+// get game id
 int Game::getGameId() {
 	return gameId;
 }
 
-string Game::getName() const {
+// get game name
+string Game::getName() {
 	return name;
 }
 
+// get min and max players
 int Game::getMinPlayers() {
 	return minPlayers;
 }
@@ -32,10 +36,26 @@ int Game::getMaxPlayers() {
 	return maxPlayers;
 }
 
+// get year published
+int Game::getYearPublished() {
+	return yearPublished;
+}
+
+// get min and max play time
+int Game::getMinPlayTime() {
+	return minPlayTime;
+}
+
+int Game::getMaxPlayTime() {
+	return maxPlayTime;
+}
+
+// check if game can be played by given number of players
 bool Game::canPlay(int playerCount) {
 	return (playerCount >= minPlayers && playerCount <= maxPlayers);
 }
 
+// borrow game
 bool Game::borrow() {
 	if (isBorrowed) {
 		return false;
@@ -46,6 +66,7 @@ bool Game::borrow() {
 	}
 }
 
+// return game
 bool Game::returnGame() {
 	if (isBorrowed) {
 		isBorrowed = false;
@@ -56,18 +77,7 @@ bool Game::returnGame() {
 	}
 }
 
-int Game::getYearPublished() {
-	return yearPublished;
-}
-
-int Game::getMinPlayTime() {
-	return minPlayTime;
-}
-
-int Game::getMaxPlayTime(){
-	return maxPlayTime; 
-}
-
+// display game details
 void Game::display() {
 	cout << "Game ID: " << gameId << endl;
 	cout << "Name: " << name << endl;
@@ -77,15 +87,18 @@ void Game::display() {
 	cout << "Status: " << (isBorrowed ? "Borrowed" : "Available") << endl;
 }
 
+// check if game is borrowed
 bool Game::checkIfBorrowed() {
 	return isBorrowed;
 }
 
+// add review to game
 void Game::addReview(int memberId, int rating, std::string comment) {
 	Review r(memberId, rating, comment);
 	reviews.addReview(r);
 }
 
+// display all reviews for the game
 void Game::displayReviews() {
 	reviews.displayAll();
 }

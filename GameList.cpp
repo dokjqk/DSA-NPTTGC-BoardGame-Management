@@ -22,7 +22,7 @@ void GameList::quickSort(Game array[], int left, int right, SortType type)
 int GameList::partition(Game array[], int left, int right, SortType type)
 {
 	Game pivot = array[(left+right)/2];
-	//based on sort type, define comparison lambdas
+	//based on sort type
 	auto lessThan = [&](Game& a, Game& b) {
 		switch (type) {
 		case year:
@@ -108,7 +108,7 @@ void GameList::loadFromCSV(string filename)
 
 	string line;
 	int lineNumber = 0;
-	int skippedLines = 0; //Document skipped lines
+	int skippedLines = 0;
 
 	getline(file, line);
 	lineNumber++; // Skip header line
@@ -220,7 +220,7 @@ void GameList::loadFromCSV(string filename)
 		}
 	}
 
-	file.close(); //close the file
+	file.close(); // Summary of loading
 	cout << "\n=== CSV Load Summary ===\n";
 	cout << "Total lines processed: " << lineNumber << endl;
 	cout << "Games loaded: " << size << endl;
@@ -336,6 +336,7 @@ Game* GameList::findById(int id)
 	return nullptr;
 }
 
+// Find a game by name
 Game* GameList::findByName(string name)
 {
 	for (int i = 0; i < size; i++) {
@@ -346,6 +347,7 @@ Game* GameList::findByName(string name)
 	return nullptr;
 }
 
+// List games playable by a given number of players
 void GameList::listByPlayers(int players)
 {
 	for (int i = 0; i < size; i++) {
@@ -356,26 +358,31 @@ void GameList::listByPlayers(int players)
 	}
 }
 
+// Sort games by year published
 void GameList::sortByYear()
 {
 	quickSort(items, 0, size - 1, year);
 }
 
+// Sort games by name
 void GameList::sortByName()
 {
 	quickSort(items, 0, size - 1, name);
 }
 
+// Sort games by borrowed status
 void GameList::sortByBorrowedStatus()
 {
 	quickSort(items, 0, size - 1, status);
 }
 
+// Sort games by ID
 void GameList::sortById()
 {
 	quickSort(items, 0, size - 1, ID);
 }
 
+// Display all games
 void GameList::displayAll() {
 	for (int i = 0; i < size; i++) {
 		items[i].display();
@@ -383,6 +390,7 @@ void GameList::displayAll() {
 	}
 }
 
+// Binary search by game ID
 int GameList::binarySearchById(int id)
 {
 	int left = 0;
@@ -403,10 +411,12 @@ int GameList::binarySearchById(int id)
 	return -1;
 }
 
+// Get size of the game list
 int GameList::getSize() {
     return size;
 }
 
+// Get game at specific index
 Game* GameList::getGameAt(int index) {
     if (index >= 0 && index < size) {
         return &items[index];
