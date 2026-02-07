@@ -131,6 +131,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Member.cpp" />
     <ClCompile Include="MemberList.cpp" />
+    <ClCompile Include="Review.cpp" />
+    <ClCompile Include="ReviewList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BorrowRecord.h" />
@@ -139,6 +141,8 @@
     <ClInclude Include="GameList.h" />
     <ClInclude Include="Member.h" />
     <ClInclude Include="MemberList.h" />
+    <ClInclude Include="Review.h" />
+    <ClInclude Include="ReviewList.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Users\acer\Downloads\games.csv" />
