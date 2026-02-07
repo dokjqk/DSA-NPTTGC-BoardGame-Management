@@ -25,4 +25,5 @@ public:
 
     void displayAll() const;
     void displayByGame(Game& game) const;
+    void displayByMember(int memberId) const;
 };
