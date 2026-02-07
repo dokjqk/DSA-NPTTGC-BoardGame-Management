@@ -80,3 +80,12 @@ void Game::display() {
 bool Game::checkIfBorrowed() {
 	return isBorrowed;
 }
+
+void Game::addReview(int memberId, int rating, std::string comment) {
+	Review r(memberId, rating, comment);
+	reviews.addReview(r);
+}
+
+void Game::displayReviews() {
+	reviews.displayAll();
+}

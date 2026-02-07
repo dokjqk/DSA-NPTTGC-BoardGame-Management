@@ -25,6 +25,9 @@ void displayMemberMenu() {
     std::cout << "3. Display a summary of games borrowed/returned by member" << std::endl;
     std::cout << "4. Display the details of a particular game" << std::endl;
     std::cout << "5. Display a list of games that can be played by a given number of players" << std::endl;
+    std::cout << "6. Write a review"<< std::endl;
+    std::cout << "7. View reviews for a game" << std::endl;
+    std::cout << "0. Return to main menu" << std::endl;
 }
 
 //Display all games with pagination and sorting
@@ -457,98 +460,176 @@ int main() {
             }
         }
         else if (roleChoice == 2) {
-            int memberChoice;
-            displayMemberMenu();
-            std::cout << "Enter choice: ";
-            std::cin >> memberChoice;
+            int memberId;
+            std::cout << "Enter memberId: ";
+            std::cin >> memberId;
 
             if (std::cin.fail()) {
                 std::cin.clear();
                 std::cin.ignore(10000, '\n');
-                std::cout << "Invalid input. Please enter a number." << std::endl;
+                std::cout << "Invalid input. Please enter a valid member ID." << std::endl;
                 continue;
             }
 
-            switch (memberChoice) {
-            case 1: { // Borrow Game
-                int memberId;
-                int gameId;
-                std::string date;
-
-                std::cout << "Enter memberId: ";
-                std::cin >> memberId;
-
-                std::cout << "Enter gameId: ";
-                std::cin >> gameId;
-                std::cin.ignore();
-
-                std::cout << "Enter Date (DD/MM/YYYY): ";
-                getline(std::cin, date);
-
-                Game* g = gameList.findById(gameId);
-
-                if (g && borrowDict.borrowGame(memberId, *g, date))
-                    std::cout << "Borrow successful." << std::endl;
-                else
-                    std::cout << "Borrow failed." << std::endl;
-
-                std::cout << "\nPress Enter to continue...";
-                std::cin.get();
-                break;
-            }
-            case 2: { // Return Game
-                int memberId, gameId;
-                std::string date;
-
-                std::cout << "Enter Member ID: ";
-                std::cin >> memberId;
-
-                std::cout << "Enter Game ID: ";
-                std::cin >> gameId;
-                std::cin.ignore();
-
-                std::cout << "Enter Date: ";
-                getline(std::cin, date);
-
-                Game* g = gameList.findById(gameId);
-
-                if (g && borrowDict.returnGame(memberId, *g, date))
-                    std::cout << "Return successful." << std::endl;
-                else
-                    std::cout << "Return failed." << std::endl;
-
-                std::cout << "\nPress Enter to continue...";
-                std::cin.get();
-                break;
-            }
-            case 3: { // Display Member Summary
-                int memberId;
-                std::cout << "Enter memberId: ";
-                std::cin >> memberId;
-
-                borrowDict.displayByMember(memberId);
+            Member* member = memberList.findById(memberId);
+            if (!member) {
+                std::cout << "Member ID not found. Please check your ID or contact administrator." << std::endl;
                 std::cout << "\nPress Enter to continue...";
                 std::cin.ignore();
                 std::cin.get();
-                break;
+                continue;
             }
-            case 4: { // Display Game Details
-                displayGamesWithPagination(gameList);
-                break;
-            }
-            case 5: { // List of games able to be played
-                int players;
-                std::cout << "Enter number of players: ";
-                std::cin >> players;
 
-                displayGamesByPlayersWithPagination(gameList, players);
-                break;
-            }
-            default:
-                std::cout << "Invalid choice." << std::endl;
-                std::cin.clear();
-                std::cin.ignore(10000, '\n');
-                break;
+            std::cout << "Welcome, " << member->getName() << "!" << std::endl;
+
+            bool exitMemberMenu = false;
+            while (!exitMemberMenu) {
+                int memberChoice;
+                displayMemberMenu();
+                std::cout << "Enter choice: ";
+                std::cin >> memberChoice;
+
+                if (std::cin.fail()) {
+                    std::cin.clear();
+                    std::cin.ignore(10000, '\n');
+                    std::cout << "Invalid input. Please enter a number." << std::endl;
+                    continue;
+                }
+
+                switch (memberChoice) {
+                case 1: { // Borrow Game
+                    int gameId;
+                    std::string date;
+
+                    std::cout << "Enter gameId: ";
+                    std::cin >> gameId;
+                    std::cin.ignore();
+
+                    std::cout << "Enter Date (DD/MM/YYYY): ";
+                    getline(std::cin, date);
+
+                    Game* g = gameList.findById(gameId);
+
+                    if (g && borrowDict.borrowGame(memberId, *g, date))
+                        std::cout << "Borrow successful." << std::endl;
+                    else
+                        std::cout << "Borrow failed." << std::endl;
+
+                    std::cout << "\nPress Enter to continue...";
+                    std::cin.get();
+                    break;
+                }
+                case 2: { // Return Game
+                    int gameId;
+                    std::string date;
+
+                    std::cout << "Enter Game ID: ";
+                    std::cin >> gameId;
+                    std::cin.ignore();
+
+                    std::cout << "Enter Date: ";
+                    getline(std::cin, date);
+
+                    Game* g = gameList.findById(gameId);
+
+                    if (g && borrowDict.returnGame(memberId, *g, date))
+                        std::cout << "Return successful." << std::endl;
+                    else
+                        std::cout << "Return failed." << std::endl;
+
+                    std::cout << "\nPress Enter to continue...";
+                    std::cin.get();
+                    break;
+                }
+                case 3: { // Display Member Summary
+                    borrowDict.displayByMember(memberId);
+                    std::cout << "\nPress Enter to continue...";
+                    std::cin.ignore();
+                    std::cin.get();
+                    break;
+                }
+                case 4: { // Display Game Details
+                    displayGamesWithPagination(gameList);
+                    break;
+                }
+                case 5: { // List of games able to be played
+                    int players;
+                    std::cout << "Enter number of players: ";
+                    std::cin >> players;
+
+                    displayGamesByPlayersWithPagination(gameList, players);
+                    break;
+                }
+                case 6: { // Write a review
+                    int gameId;
+                    int rating;
+                    std::string comment;
+
+                    std::cout << "Enter Game ID: ";
+                    std::cin >> gameId;
+                    std::cin.ignore();
+
+                    while (true) {
+                        std::cout << "Enter Rating (0-5): ";
+                        std::cin >> rating;
+
+                        if (std::cin.fail() || rating < 0 || rating > 5) {
+                            std::cin.clear();
+                            std::cin.ignore(10000, '\n');
+                            std::cout << "Invalid rating. Please enter a number between 0 and 5." << std::endl;
+                            continue;
+                        }
+
+                        std::cin.ignore();
+                        break;
+                    }
+
+                    std::cout << "Enter Comment: ";
+                    getline(std::cin, comment);
+
+                    Game* g = gameList.findById(gameId);
+                    if (g) {
+                        g->addReview(memberId, rating, comment);
+                        std::cout << "Review added." << std::endl;
+                    }
+                    else {
+                        std::cout << "Game not found." << std::endl;
+                    }
+
+                    std::cout << "\nPress Enter to continue...";
+                    std::cin.get();
+                    break;
+
+                }
+                case 7: { // Read review for a game
+                    int gameId;
+                    std::cout << "Enter Game ID: ";
+                    std::cin >> gameId;
+
+                    Game* g = gameList.findById(gameId);
+                    if (g) {
+                        g->displayReviews();
+                    }
+                    else {
+                        std::cout << "Game not found." << std::endl;
+                    }
+
+                    std::cout << "\nPress Enter to continue...";
+                    std::cin.ignore();
+                    std::cin.get();
+                    break;
+                }
+                case 0:
+                    std::cout << "Returning to main menu..." << std::endl;
+                    exitMemberMenu = true;
+                    break;
+
+                default:
+                    std::cout << "Invalid choice. Please enter a number between 0 and 7." << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(10000, '\n');
+                    break;
+                }
             }
         }
         else {
