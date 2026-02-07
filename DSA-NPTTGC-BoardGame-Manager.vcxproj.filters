@@ -58,6 +58,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="members.csv" />
     <None Include="games.csv" />
   </ItemGroup>
 </Project>
