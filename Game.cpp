@@ -24,8 +24,8 @@ int Game::getGameId() {
 }
 
 // get game name
-string Game::getName() {
-	return name;
+string Game::getName() const {
+    return name;
 }
 
 // get min and max players

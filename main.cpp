@@ -457,6 +457,7 @@ void displayMemberPlayHistoryWithPagination(GamePlayRecordList& gamePlayList, Me
         std::cout << "Press Enter to record your first game play...";
         std::cin.ignore();
         std::cin.get();
+		recordGamePlay(gamePlayList, memberList, gameList);
         return;
     }
     
