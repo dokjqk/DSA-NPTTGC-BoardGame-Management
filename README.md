@@ -12,7 +12,7 @@ A comprehensive Board Game Management System built with C++ for managing board g
 
 ## 🎯 Overview
 
-This Board Game Management System is designed for board game cafes, libraries, or clubs to efficiently manage their game collections and member interactions. The system implements various data structures and algorithms for optimal performance.
+The NPTTGC Board Game Manager is a C++ console-based application developed to manage the board game collection of the Ngee Ann Polytechnic Tabletop Games Club. The system supports two types of users: Administrators and Members, each with distinct functionalities.
 
 ## ✨ Features
 
@@ -59,8 +59,7 @@ After selecting Administrator (option 1), you can access the following features:
 - **Usage**: 
   - Navigate with `P` (Previous), `N` (Next), `F` (First), `L` (Last)
   - Sort games using `S` option
-  - View details of specific game using `D` option
-- **Example Output**:
+  - View details of specific game using `D` option:
 
 #### 2. Add a Board Game
 - **Function**: Add a new game to the collection
@@ -72,7 +71,6 @@ After selecting Administrator (option 1), you can access the following features:
   - Minimum Play Time (integer, in minutes)
   - Maximum Play Time (integer, in minutes)
   - Year Published (integer)
-- **Example**:
 
 #### 3. Remove a Board Game
 - **Function**: Remove a game from the system
@@ -115,7 +113,6 @@ After selecting Member (option 2), enter your Member ID to access:
 - **Required Input**:
   - Game ID (integer)
   - Date (DD/MM/YYYY format)
-- **Example**:
 
 #### 2. Return a Board Game
 - **Function**: Return a borrowed game
@@ -152,7 +149,6 @@ After selecting Member (option 2), enter your Member ID to access:
   - Game ID (integer)
   - Rating (1-5 stars)
   - Comment (string)
-- **Example**:
 
 #### 7. View Reviews for a Game
 - **Function**: Read reviews from other members
