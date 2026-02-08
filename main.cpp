@@ -308,6 +308,15 @@ bool recordGamePlay(GamePlayRecordList& gamePlayList, MemberList& memberList, Ga
     std::cout << "\n==== Record New Game Play ====\n";
     std::cout << "Enter Game ID (or 0 to cancel): ";
     std::cin >> gameId;
+
+	if (std::cin.fail()) {
+        std::cin.clear();
+		std::cin.ignore();
+        std::cout << "Invalid input. Please enter a valid Game ID." << std::endl;
+        std::cout << "\nPress Enter to continue...";
+        std::cin.get();
+        return false;
+    }
     
     if (gameId == 0) {
         return false;
@@ -328,6 +337,16 @@ bool recordGamePlay(GamePlayRecordList& gamePlayList, MemberList& memberList, Ga
     
     std::cout << "\nEnter number of winners: ";
     std::cin >> numWinners;
+
+    if (std::cin.fail()) {
+        std::cin.clear();
+        std::cin.ignore();
+        delete play;
+        std::cout << "Invalid input. Please enter a valid number" << std::endl;
+        std::cout << "\nPress Enter to continue...";
+        std::cin.get();
+        return false;
+    }
     
     if (numWinners > 0) {
         std::cout << "Enter winner IDs:" << std::endl;
@@ -335,6 +354,16 @@ bool recordGamePlay(GamePlayRecordList& gamePlayList, MemberList& memberList, Ga
             int winnerId;
             std::cout << "  Winner " << (i + 1) << ": ";
             std::cin >> winnerId;
+
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore();
+                i--;
+                std::cout << "Invalid input. Please enter a valid member ID." << std::endl;
+                std::cout << "\nPress Enter to continue...";
+                std::cin.get();
+                continue;
+            }
             
             Member* winnerMember = memberList.findById(winnerId);
             if (winnerMember == nullptr) {
@@ -385,6 +414,17 @@ bool recordGamePlay(GamePlayRecordList& gamePlayList, MemberList& memberList, Ga
         std::cout << "Record anyway? (Y/N): ";
         char confirm;
         std::cin >> confirm;
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore();
+			delete play;
+            std::cout << "Invalid input. Play was not recorded." << std::endl;
+            std::cout << "\nPress Enter to continue...";
+            std::cin.get();
+            return false;
+        }
+
         if (toupper(confirm) != 'Y') {
             delete play;
             std::cout << "Game play recording cancelled." << std::endl;
@@ -417,6 +457,7 @@ void displayMemberPlayHistoryWithPagination(GamePlayRecordList& gamePlayList, Me
         std::cout << "Press Enter to record your first game play...";
         std::cin.ignore();
         std::cin.get();
+        return;
     }
     
     int totalPages = (totalRecords + recordsPerPage - 1) / recordsPerPage;

@@ -187,8 +187,24 @@ int GamePlayRecordList::getLossCountByMember(int memberId) {
     return count;
 }
 
+// clear all records
+void GamePlayRecordList::clear() {
+    GamePlayNode* current = firstNode;
+    while (current != nullptr) {
+        GamePlayNode* temp = current;
+        current = current->next;
+        delete temp->item;
+        delete temp;
+    }
+    firstNode = nullptr;
+    size = 0;
+}
+
 // load game play records from CSV file
 void GamePlayRecordList::loadFromCSV() {
+
+    clear();
+
     ifstream file(csvFile);
     if (!file.is_open()) {
         cout << "No existing game play records file found. Starting fresh." << endl;

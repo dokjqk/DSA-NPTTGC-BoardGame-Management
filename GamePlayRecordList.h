@@ -16,6 +16,8 @@ private:
     GamePlayNode* firstNode;
     int size;
     string csvFile;
+
+    void clear();
     
 public:
     GamePlayRecordList();
