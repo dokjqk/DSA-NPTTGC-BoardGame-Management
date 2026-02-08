@@ -12,7 +12,7 @@ BorrowRecord::BorrowRecord() {
 }
 
 BorrowRecord::BorrowRecord(int rId, int mId, Game g, std::string act, std::string d) {
-	recordId - rId;
+	recordId = rId;
 	memberId = mId;
 	game = g;
 	action = act;
