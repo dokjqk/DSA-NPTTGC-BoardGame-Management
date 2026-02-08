@@ -12,7 +12,7 @@ A comprehensive Board Game Management System built with C++ for managing board g
 
 ## 🎯 Overview
 
-This Board Game Management System is designed for board game cafes, libraries, or clubs to efficiently manage their game collections and member interactions. The system implements various data structures and algorithms for optimal performance.
+The NPTTGC Board Game Manager is a C++ console-based application developed to manage the board game collection of the Ngee Ann Polytechnic Tabletop Games Club. The system supports two types of users: Administrators and Members, each with distinct functionalities.
 
 ## ✨ Features
 
