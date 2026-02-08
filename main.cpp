@@ -714,6 +714,7 @@ int main() {
                     std::cout << "1. View all game plays" << std::endl;
                     std::cout << "2. View plays for a game" << std::endl;
                     std::cout << "3. View plays for a member" << std::endl;
+					std::cout << "Quick game lookup" << std::endl;
                     std::cout << "Enter choice: ";
 
                     int statsChoice;
@@ -800,6 +801,31 @@ int main() {
                         std::cin.get();
                         break;
                     }
+
+					case 4: { // Binary search for game by ID
+                        gameList.sortById();
+
+                        int id;
+                        std::cout << "\nEnter Game ID (0 to cancel): ";
+                        std::cin >> id;
+
+                        if (std::cin.fail()) {
+                            std::cin.clear();
+                            std::cin.ignore(10000, '\n');
+                            std::cout << "Invalid input." << std::endl;
+                            continue;
+                        }
+
+                        if (id == 0) {
+                            break;
+                        }
+
+                        int index = gameList.binarySearchById(id);
+                        Game* game = gameList.getGameAt(index);
+                        game->display();
+                        gameList.sortByName();
+                        break;
+					}
 
                     default:
                         std::cout << "Invalid choice." << std::endl;

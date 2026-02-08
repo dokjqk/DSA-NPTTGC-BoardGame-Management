@@ -24,8 +24,6 @@ private:
     void quickSort(Game array[], int left, int right, SortType type);
     int partition(Game array[], int left, int right, SortType type);
 
-	int binarySearchById(int id);
-
 public:
     GameList(int capacity, string filename);
     ~GameList();
@@ -44,7 +42,7 @@ public:
 	void sortByBorrowedStatus();
 	void sortById();
     void displayAll();
-
+    int binarySearchById(int id);
     int getSize();
     Game* getGameAt(int index);
 };
