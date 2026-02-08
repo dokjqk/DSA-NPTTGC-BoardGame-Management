@@ -177,10 +177,10 @@ int GamePlayRecord::getTotalPlayers() {
 string GamePlayRecord::toCSVString() {
     stringstream ss;
     ss << gameId << ","
-       << gameName << ","
-       << listToString(winnerfirst) << ","
-       << listToString(loserfirst) << ","
-       << playDate;
+        << "\"" << gameName << "\","
+        << listToString(winnerfirst) << ","
+        << listToString(loserfirst) << ","
+        << playDate;
     return ss.str();
 }
 
@@ -188,26 +188,57 @@ string GamePlayRecord::toCSVString() {
 void GamePlayRecord::fromCSVString(string& csvLine) {
     stringstream ss(csvLine);
     string token;
-    int field = 0;
+    string line = csvLine;  // Working copy
     
-    while (getline(ss, token, ',')) {
-        switch (field) {
-            case 0:  // get game id first
-                gameId = stoi(token);
-                break;
-            case 1:  // then get name
-                gameName = token;
-                break;
-            case 2:  // then get winner ids
-                stringToList(winnerfirst, token);
-                break;
-            case 3:  // then get loser ids
-                stringToList(loserfirst, token);
-                break;
-            case 4:  // get date
-                playDate = stoll(token);
-                break;
+    // Field 0: gameId
+    getline(ss, token, ',');
+    gameId = stoi(token);
+    
+    // Remove gameId from line
+    size_t firstComma = line.find(',');
+    if (firstComma != string::npos) {
+        line = line.substr(firstComma + 1);
+    }
+    
+    // 
+    if (!line.empty() && line[0] == '"') {
+        size_t endQuote = line.find("\",");
+        if (endQuote == string::npos) {
+            
+            gameName = line.substr(1);  
         }
-        field++;
+        else {
+            gameName = line.substr(1, endQuote - 1); 
+            line = line.substr(endQuote + 2); 
+        }
+    }
+    else {
+       
+        size_t nextComma = line.find(',');
+        if (nextComma != string::npos) {
+            gameName = line.substr(0, nextComma);
+            line = line.substr(nextComma + 1);
+        }
+        else {
+            gameName = line;
+            line = "";
+        }
+    }
+
+    ss.clear();
+    ss.str(line);
+
+
+    getline(ss, token, ',');
+    stringToList(winnerfirst, token);
+
+
+    getline(ss, token, ',');
+    stringToList(loserfirst, token);
+
+
+    getline(ss, token, ',');
+    if (!token.empty()) {
+        playDate = stoll(token);
     }
 }
