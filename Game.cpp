@@ -1,3 +1,9 @@
+/*
+------------------------------------------------------------
+Hendi Wong Jia Ming (S10270162K)
+Ansleigh Ong Hong Yi (S10268445J)
+------------------------------------------------------------
+*/
 #include "Game.h"
 #include <string>
 using namespace std;

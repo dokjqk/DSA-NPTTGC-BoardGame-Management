@@ -1,5 +1,17 @@
 ﻿// DSA-NPTTGC-BoardGame-Manager.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
+/*
+------------------------------------------------------------
+Hendi Wong Jia Ming (S10270162K)
+Ansleigh Ong Hong Yi (S10268445J)
+
+Basic Administrator Menu and features done by Ansleigh
+Basic Member Menu and features done by Hendi
+
+Advanced Review Member feature by Hendi
+Advanced RecordPlays Member feature by Ansleigh
+------------------------------------------------------------
+*/
 #include <iostream>
 #include "Member.h"
 #include "MemberList.h"

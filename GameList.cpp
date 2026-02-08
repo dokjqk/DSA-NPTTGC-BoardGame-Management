@@ -1,5 +1,8 @@
-//Name: Ansleigh, group 8, s10268445J
-
+/*
+------------------------------------------------------------
+Ansleigh Ong Hong Yi (S10268445J)
+------------------------------------------------------------
+*/
 #include "GameList.h"
 #include <string>
 #include <fstream>
